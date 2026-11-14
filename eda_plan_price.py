@@ -1,15 +1,11 @@
 """
-Milestone 3 EDA (Zihan): relationship between cancellation (is_cancel) and
-four plan/price variables:
-    payment_plan_days (-> subscription_type), payment_method_id,
-    plan_list_price, actual_amount_paid
+Milestone 3 EDA (Zihan): relationship between cancellation (is_cancel) and four plan/price variables:
 
 Usage:
     python eda_plan_price.py kkbox_transactions.csv [--out figures]
 
-Unit of analysis: transaction (same as the team's preliminary analysis).
-Because only auto-renew subscriptions can be cancelled, every result is also
-reported for auto-renew transactions only.
+Unit of analysis: transaction .
+
 """
 
 import argparse
@@ -27,7 +23,6 @@ INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e4e3df"
 TOP_METHODS = 12
 
 
-# ---------------------------------------------------------------- helpers
 def classify_plan(days):
     if 28 <= days <= 31:
         return "Monthly"
@@ -101,7 +96,6 @@ def bar_with_ci(ax, labels, table, color=BLUE):
     ax.yaxis.grid(True, color=GRID, linewidth=0.8)
 
 
-# ---------------------------------------------------------------- main
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("csv")
@@ -124,7 +118,6 @@ def main():
     print("cancellations among non-auto-renew transactions:",
           int(df.loc[df["is_auto_renew"] == 0, "is_cancel"].sum()))
 
-    # 1. subscription type --------------------------------------------------
     section("1. payment_plan_days / subscription_type vs is_cancel")
     t1 = rate_table(df, "subscription_type").reindex(["Monthly", "Annual", "Other"])
     print(t1.round(2).to_string())
@@ -143,7 +136,6 @@ def main():
     fig.savefig(os.path.join(args.out, "fig1_subscription_type.png"), dpi=200)
     plt.close(fig)
 
-    # 2. payment method -----------------------------------------------------
     section("2. payment_method_id vs is_cancel")
     top = df["payment_method_id"].value_counts().head(TOP_METHODS).index
     t2 = rate_table(df[df["payment_method_id"].isin(top)], "payment_method_id")
@@ -182,7 +174,6 @@ def main():
     fig.savefig(os.path.join(args.out, "fig2_payment_method.png"), dpi=200)
     plt.close(fig)
 
-    # 3. plan_list_price ----------------------------------------------------
     section("3. plan_list_price vs is_cancel")
     s, test = numeric_summary(df, "plan_list_price")
     print("all transactions:\n" + s.to_string() + "\n" + test)
@@ -204,7 +195,6 @@ def main():
     fig.savefig(os.path.join(args.out, "fig3_list_price.png"), dpi=200)
     plt.close(fig)
 
-    # 4. actual_amount_paid -------------------------------------------------
     section("4. actual_amount_paid vs is_cancel")
     s, test = numeric_summary(df, "actual_amount_paid")
     print("all transactions:\n" + s.to_string() + "\n" + test)
